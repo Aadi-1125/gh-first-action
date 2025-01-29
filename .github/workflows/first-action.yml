@@ -1,3 +1,41 @@
+# name: Deploy Application
+
+# on:
+#   workflow_dispatch:
+#     inputs:
+#       environment:
+#         description: 'Select deployment environment'
+#         required: true
+#         type: choice
+#         options:
+#           - dev
+#           - qa
+#           - staging
+#           - prod
+#           - dr
+
+#       IMAGE_TAG:
+#         description: 'Enter the Image Tag from the build'
+#         required: true
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout Code
+#         uses: actions/checkout@v4
+
+#       - name: Deploy to Selected Environment
+#         uses: telus-health/th-enablement-actions/.github/workflows/deploy-to-ocp-cd.yaml@jghm/reusable-workflows-v1
+#         with:
+#           IMAGE_TAG: ${{ github.event.inputs.IMAGE_TAG }}
+#           maint_windows_check: ${{ contains(fromJson('["prod", "dr"]'), github.event.inputs.environment) }}
+#           environment_value: ${{ github.event.inputs.environment }}
+#           env_vars_file: policymapper-api
+#           ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+#           ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
+      
+      
 name: Deploy Application
 
 on:
@@ -20,19 +58,10 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
-      - name: Deploy to Selected Environment
-        uses: telus-health/th-enablement-actions/.github/workflows/deploy-to-ocp-cd.yaml@jghm/reusable-workflows-v1
-        with:
-          IMAGE_TAG: ${{ github.event.inputs.IMAGE_TAG }}
-          maint_windows_check: ${{ contains(fromJson('["prod", "dr"]'), github.event.inputs.environment) }}
-          environment_value: ${{ github.event.inputs.environment }}
-          env_vars_file: policymapper-api
-          ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
-          ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
-      
-      
+    uses: telus-health/th-enablement-actions/.github/workflows/deploy-to-ocp-cd.yaml@jghm/reusable-workflows-v1
+    with:
+      IMAGE_TAG: ${{ github.event.inputs.IMAGE_TAG }}
+      maint_windows_check: ${{ contains(fromJson('["prod", "dr"]'), github.event.inputs.environment) }}
+      environment_value: ${{ github.event.inputs.environment }}
+      env_vars_file: policymapper-api
+    secrets: inherit
