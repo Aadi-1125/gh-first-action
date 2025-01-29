@@ -1,12 +1,38 @@
-name: First Workflow
-on: workflow_dispatch
-jobs: 
-  first-job:
+name: Deploy Application
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Select deployment environment'
+        required: true
+        type: choice
+        options:
+          - dev
+          - qa
+          - staging
+          - prod
+          - dr
+
+      IMAGE_TAG:
+        description: 'Enter the Image Tag from the build'
+        required: true
+
+jobs:
+  deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Print greeting
-        run: echo "hello world"
-      - name: print goodbye
-        run: echo "done - bye"
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy to Selected Environment
+        uses: telus-health/th-enablement-actions/.github/workflows/deploy-to-ocp-cd.yaml@jghm/reusable-workflows-v1
+        with:
+          IMAGE_TAG: ${{ github.event.inputs.IMAGE_TAG }}
+          maint_windows_check: ${{ contains(fromJson('["prod", "dr"]'), github.event.inputs.environment) }}
+          environment_value: ${{ github.event.inputs.environment }}
+          env_vars_file: policymapper-api
+          ARTIFACTORY_USERNAME: ${{ secrets.ARTIFACTORY_USERNAME }}
+          ARTIFACTORY_PASSWORD: ${{ secrets.ARTIFACTORY_PASSWORD }}
       
       
